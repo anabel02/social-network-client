@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package socialnetwork;
+
+service PostService {
+    // Create a new post
+    rpc CreatePost (CreatePostRequest) returns (CreatePostResponse);
+    
+    // Get a post by its ID
+    rpc GetPost (GetPostRequest) returns (GetPostResponse);
+
+    // Repost an existing post
+    rpc Repost (RepostRequest) returns (RepostResponse);
+
+    // Delete a post by its ID
+    rpc DeletePost (DeletePostRequest) returns (DeletePostResponse);
+    
+    // Get all posts for a specific user
+    rpc GetUserPosts (GetUserPostsRequest) returns (GetUserPostsResponse);
+}
+
+enum PostType {
+  ORIGINAL = 0;
+  REPOST = 1;
+  REPOST_OF_REPOST = 2;
+}
+
+message PostDto {
+  string post_id = 1;
+  string user_id = 2;
+  string content = 3;
+  PostType post_type = 4;
+  int64 timestamp = 5;
+  PostDto original_post = 6;
+}
+
+message CreatePostRequest {
+  string user_id = 1;
+  string content = 2;
+}
+
+message CreatePostResponse {
+  PostDto post = 1;
+}
+
+message GetPostRequest {
+  string post_id = 1;
+}
+
+message GetPostResponse {
+  PostDto post = 1;
+}
+
+message RepostRequest {
+  string user_id = 1;
+  string original_post_id = 2;
+  string content = 3;
+}
+
+message RepostResponse {
+  PostDto post = 1;
+}
+
+message GetUserPostsRequest {
+  string user_id = 1;
+}
+
+message GetUserPostsResponse {
+  repeated PostDto posts = 1;
+}
+
+message DeletePostRequest {
+  string post_id = 1;
+}
+
+message DeletePostResponse {
+}

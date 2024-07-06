@@ -8,6 +8,7 @@ import proto.db_models_pb2 as db_models_pb2
 import bcrypt
 import grpc
 from typing import Optional
+from store import Storage
 
 # Constants
 TOKEN = 'token'
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 class AuthManager:
     @staticmethod
     def get_user() -> Optional[dict]:
-        token = st.session_state.get(TOKEN)
+        token = Storage.disk_get(TOKEN)
         if not token:
             return None
         try:
@@ -51,11 +52,8 @@ class AuthManager:
             stub = auth_pb2_grpc.AuthStub(channel)
             try:
                 await stub.SignUp(request)
-                st.success("User created successfully!")
                 login_success = await AuthManager.login(username, password)
                 if login_success:
-                    st.session_state['user_logged_in'] = True
-                    st.experimental_rerun()
                     return True
                 else:
                     st.warning("Account created, but automatic login failed. Please log in manually.")
@@ -79,7 +77,7 @@ class AuthManager:
             stub = auth_pb2_grpc.AuthStub(channel)
             try:
                 response = await stub.Login(request)
-                st.session_state[TOKEN] = response.token
+                await Storage.async_disk_store(TOKEN, response.token)
                 st.success('Logged In Successfully')
                 return True
             except GRPCError as error:
@@ -89,9 +87,9 @@ class AuthManager:
 
     @staticmethod
     async def logout():
-        if TOKEN in st.session_state:
-            del st.session_state[TOKEN]
-            st.success('Logged Out Successfully')
+        Storage.clear()
+        st.success('Logged Out Successfully')
+        st.rerun()
 
 
 class UIManager:
@@ -103,7 +101,7 @@ class UIManager:
             submitted = st.form_submit_button('Log In')
             if submitted:
                 st.session_state['do_login'] = (username, password)
-                st.experimental_rerun()
+                st.rerun()
 
     @staticmethod
     def render_signup_form():
@@ -115,7 +113,7 @@ class UIManager:
             submitted = st.form_submit_button('Sign Up')
             if submitted:
                 st.session_state['do_signup'] = (username, password, name, email)
-                st.experimental_rerun()
+                st.rerun()
 
 
 async def app():
@@ -127,13 +125,13 @@ async def app():
         username, password, name, email = st.session_state.pop('do_signup')
         await AuthManager.signup(username, password, name, email)
 
-    user = AuthManager.get_user()
+    token: str = await Storage.async_disk_get(TOKEN)
 
-    if user:
+    if token:
+        user = AuthManager.get_user()
         st.write(f'Hello {user["name"]}, you are logged in')
         if st.button('Log Out'):
             await AuthManager.logout()
-            st.experimental_rerun()
     else:
         nav_options = ['Login', 'SignUp']
         selected_option = st.sidebar.selectbox('', nav_options)

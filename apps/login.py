@@ -5,7 +5,7 @@ from grpclib import GRPCError
 from rpc.clients import TOKEN, get_user
 
 
-class UIManager:
+class LoginUIManager:
     @staticmethod
     def render_login_form():
         with st.form('login'):
@@ -61,6 +61,6 @@ async def app():
         st.title(selected_option)
 
         if selected_option == 'Login':
-            UIManager.render_login_form()
+            LoginUIManager.render_login_form()
         else:
-            UIManager.render_signup_form()
+            LoginUIManager.render_signup_form()

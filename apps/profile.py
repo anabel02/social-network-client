@@ -3,7 +3,7 @@ from rpc.user import UserManager
 from rpc.clients import get_user
 
 
-class UIManager:
+class ProfileUIManager:
     @staticmethod
     def initialize_session_state():
         if 'edit_mode' not in st.session_state:
@@ -62,18 +62,18 @@ class UIManager:
 
 
 async def app():
-    UIManager.initialize_session_state()
+    ProfileUIManager.initialize_session_state()
 
     if not st.session_state.user_info:
-        await UIManager.load_user_info()
+        await ProfileUIManager.load_user_info()
 
-    UIManager.display_user_info()
+    ProfileUIManager.display_user_info()
 
     if st.session_state.user_info:
-        UIManager.toggle_edit_mode()
+        ProfileUIManager.toggle_edit_mode()
 
         if st.session_state.edit_mode:
-            updated_info = UIManager.edit_profile_form()
+            updated_info = ProfileUIManager.edit_profile_form()
             if updated_info:
-                await UIManager.update_user_profile(updated_info)
+                await ProfileUIManager.update_user_profile(updated_info)
                 st.rerun()

@@ -3,6 +3,7 @@ import jwt
 import logging
 from grpc import aio as grpc_aio
 from store import Storage
+from typing import Optional
 
 # Constants
 USER = 50051
@@ -20,10 +21,22 @@ def get_host(service):
     return f'172.17.0.2:{service}'
 
 
+def get_user() -> Optional[dict]:
+    token = Storage.disk_get(TOKEN)
+    if not token:
+        return None
+    try:
+        with open(PUBLIC_KEY_PATH, 'rb') as pub:
+            public_key = pub.read()
+        return jwt.decode(token, public_key, algorithms=['RS256'])
+    except jwt.PyJWTError as e:
+        logger.error(f"Error decoding token: {e}")
+        return None
+
+
 class AuthInterceptor(grpc.aio.UnaryUnaryClientInterceptor):
     async def intercept_unary_unary(self, continuation, client_call_details, request):
         token = await Storage.async_disk_get(TOKEN)
-        print(f"Retrieved token: {token}")  # Debug print
         if token:
             if client_call_details.metadata is None:
                 metadata = []
@@ -50,18 +63,6 @@ class InterceptedChannel:
     def __init__(self, channel, interceptor):
         self._channel = channel
         self._interceptor = interceptor
-
-    def get_user() -> dict:
-        token = Storage.disk_get(TOKEN)
-        if not token:
-            return {}
-        try:
-            with open(PUBLIC_KEY_PATH, 'rb') as pub:
-                public_key = pub.read()
-            return jwt.decode(token, public_key, algorithms=['RS256'])
-        except jwt.PyJWTError as e:
-            logger.error(f"Error decoding token: {e}")
-            return {}
 
     def unary_unary(self, method, request_serializer=None, response_deserializer=None, _registered_method=None):
         original_unary_unary = self._channel.unary_unary(method, request_serializer, response_deserializer)

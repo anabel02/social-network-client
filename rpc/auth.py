@@ -1,4 +1,3 @@
-import jwt
 import streamlit as st
 import logging
 from grpclib import GRPCError
@@ -6,8 +5,7 @@ import proto.auth_service_pb2 as auth_pb2
 import proto.auth_service_pb2_grpc as auth_pb2_grpc
 import proto.db_models_pb2 as db_models_pb2
 import bcrypt
-from rpc.clients import AUTH, create_channel, TOKEN, PUBLIC_KEY_PATH
-from typing import Optional
+from rpc.clients import AUTH, create_channel, TOKEN
 from store import Storage
 
 
@@ -17,19 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class AuthManager:
-    @staticmethod
-    def get_user() -> Optional[dict]:
-        token = Storage.disk_get(TOKEN)
-        if not token:
-            return None
-        try:
-            with open(PUBLIC_KEY_PATH, 'rb') as pub:
-                public_key = pub.read()
-            return jwt.decode(token, public_key, algorithms=['RS256'])
-        except jwt.PyJWTError as e:
-            logger.error(f"Error decoding token: {e}")
-            return None
-
     @staticmethod
     async def signup(username: str, password: str, name: str, email: str) -> bool:
         logger.info(f"Creating user: username: {username}, name: {name}, email: {email}")

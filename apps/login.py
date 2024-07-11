@@ -2,7 +2,7 @@ import streamlit as st
 from store import Storage
 from rpc.auth import AuthManager
 from grpclib import GRPCError
-from rpc.clients import TOKEN
+from rpc.clients import TOKEN, get_user
 
 
 class UIManager:
@@ -50,7 +50,7 @@ async def app():
     token: str = await Storage.async_disk_get(TOKEN)
 
     if token:
-        user = AuthManager.get_user()
+        user = get_user()
         st.write(f'Hello {user["name"]}, you are logged in')
         if st.button('Log Out'):
             await AuthManager.logout()

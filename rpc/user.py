@@ -1,11 +1,9 @@
-import jwt
 import logging
 from grpclib import GRPCError
 import proto.users_service_pb2 as user_pb2
 import proto.users_service_pb2_grpc as user_pb2_grpc
 import proto.db_models_pb2 as db_models_pb2
-from store import Storage
-from rpc.clients import USER, create_channel, TOKEN, PUBLIC_KEY_PATH
+from rpc.clients import USER, create_channel
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -13,19 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserManager:
-    @staticmethod
-    def get_user() -> dict:
-        token = Storage.disk_get(TOKEN)
-        if not token:
-            return {}
-        try:
-            with open(PUBLIC_KEY_PATH, 'rb') as pub:
-                public_key = pub.read()
-            return jwt.decode(token, public_key, algorithms=['RS256'])
-        except jwt.PyJWTError as e:
-            logger.error(f"Error decoding token: {e}")
-            return {}
-
     @staticmethod
     async def get_user_info(username: str) -> db_models_pb2.User:
         request = user_pb2.GetUserRequest(username=username)

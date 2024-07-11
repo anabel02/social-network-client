@@ -1,5 +1,6 @@
 import streamlit as st
 from rpc.user import UserManager
+from rpc.clients import get_user
 
 
 class UIManager:
@@ -12,7 +13,7 @@ class UIManager:
 
     @staticmethod
     async def load_user_info():
-        user = UserManager.get_user()
+        user = get_user()
         if user:
             st.session_state.user_info = await UserManager.get_user_info(user['sub'])
         else:

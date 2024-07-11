@@ -6,3 +6,6 @@ bcrypt
 PyJWT
 cryptography
 certifi
+grpcio
+grpcio-tools
+protobuf

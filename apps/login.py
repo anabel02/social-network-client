@@ -1,95 +1,8 @@
-import jwt
 import streamlit as st
-import logging
-from grpclib import GRPCError
-import proto.auth_service_pb2 as auth_pb2
-import proto.auth_service_pb2_grpc as auth_pb2_grpc
-import proto.db_models_pb2 as db_models_pb2
-import bcrypt
-import grpc
-from typing import Optional
 from store import Storage
-
-# Constants
-TOKEN = 'token'
-SERVER_IP = '172.30.148.81'
-SERVER_PORT = '50052'
-PUBLIC_KEY_PATH = 'pub.pem'
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-class AuthManager:
-    @staticmethod
-    def get_user() -> Optional[dict]:
-        token = Storage.disk_get(TOKEN)
-        if not token:
-            return None
-        try:
-            with open(PUBLIC_KEY_PATH, 'rb') as pub:
-                public_key = pub.read()
-            return jwt.decode(token, public_key, algorithms=['RS256'])
-        except jwt.PyJWTError as e:
-            logger.error(f"Error decoding token: {e}")
-            return None
-
-    @staticmethod
-    async def create_grpc_channel():
-        return grpc.aio.insecure_channel(f'{SERVER_IP}:{SERVER_PORT}')
-
-    @staticmethod
-    async def signup(username: str, password: str, name: str, email: str) -> bool:
-        logger.info(f"Creating user: username: {username}, name: {name}, email: {email}")
-        salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password.encode(), salt).decode()
-
-        user = db_models_pb2.User(username=username, name=name, password_hash=hashed_password, email=email)
-        request = auth_pb2.SignUpRequest(user=user)
-
-        async with await AuthManager.create_grpc_channel() as channel:
-            stub = auth_pb2_grpc.AuthStub(channel)
-            try:
-                await stub.SignUp(request)
-                login_success = await AuthManager.login(username, password)
-                if login_success:
-                    return True
-                else:
-                    st.warning("Account created, but automatic login failed. Please log in manually.")
-                    return False
-            except GRPCError as error:
-                logger.error(f"An error occurred creating the user: {error.status}: {error.message}")
-                st.error(f"Error: {error.message}")
-                return False
-
-            except Exception as e:
-                logger.error(f"Unexpected error during signup: {str(e)}")
-                st.error("An unexpected error occurred. Please try again later.")
-                return False
-
-    @staticmethod
-    async def login(username: str, password: str) -> bool:
-        logger.info(f"Logging in: username: {username}")
-        request = auth_pb2.LoginRequest(username=username, password=password)
-
-        async with await AuthManager.create_grpc_channel() as channel:
-            stub = auth_pb2_grpc.AuthStub(channel)
-            try:
-                response = await stub.Login(request)
-                await Storage.async_disk_store(TOKEN, response.token)
-                st.success('Logged In Successfully')
-                return True
-            except GRPCError as error:
-                logger.error(f"Login error: {error.message}")
-                st.error(f"Login failed: {error.message}")
-                return False
-
-    @staticmethod
-    async def logout():
-        Storage.clear()
-        st.success('Logged Out Successfully')
-        st.rerun()
+from rpc.auth import AuthManager
+from grpclib import GRPCError
+from rpc.clients import TOKEN
 
 
 class UIManager:
@@ -119,11 +32,20 @@ class UIManager:
 async def app():
     if 'do_login' in st.session_state:
         username, password = st.session_state.pop('do_login')
-        await AuthManager.login(username, password)
+        if await AuthManager.login(username, password):
+            st.success("Logged in successfully!")
+        else:
+            st.error("Error logging in. Please check your credentials and try again.")
 
     if 'do_signup' in st.session_state:
         username, password, name, email = st.session_state.pop('do_signup')
-        await AuthManager.signup(username, password, name, email)
+        try:
+            await AuthManager.signup(username, password, name, email)
+            login_success = await AuthManager.login(username, password)
+            if not login_success:
+                st.warning("Account created, but automatic login failed. Please log in manually.")
+        except GRPCError as error:
+            st.error(f"Sign up failed: {error.message}")
 
     token: str = await Storage.async_disk_get(TOKEN)
 
@@ -133,7 +55,7 @@ async def app():
         if st.button('Log Out'):
             await AuthManager.logout()
     else:
-        nav_options = ['Login', 'SignUp']
+        nav_options = ['Login', 'Sign Up']
         selected_option = st.sidebar.selectbox('', nav_options)
 
         st.title(selected_option)

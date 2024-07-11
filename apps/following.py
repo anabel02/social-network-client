@@ -1,6 +1,8 @@
 import streamlit as st
 from rpc.follow import FollowManager
+from rpc.posts import PostManager
 from rpc.clients import get_user
+from rpc.user import UserManager
 
 
 class FollowUIManager:
@@ -10,12 +12,14 @@ class FollowUIManager:
             st.session_state.edit_mode = False
         if 'user_info' not in st.session_state:
             st.session_state.user_info = None
+        if 'view_user_posts' not in st.session_state:
+            st.session_state.view_user_posts = None
 
     @staticmethod
     async def load_user_info():
         user = get_user()
         if user:
-            st.session_state.user_info = await FollowManager.get_user_info(user['sub'])
+            st.session_state.user_info = await UserManager.get_user_info(user['sub'])
         else:
             st.session_state.user_info = None
 
@@ -41,13 +45,31 @@ class FollowUIManager:
         following = await FollowManager.get_following()
         st.subheader("Users you're following:")
         for username in following:
-            col1, col2 = st.columns([3, 1])
+            col1, col2, col3 = st.columns([2, 1, 1])
             with col1:
                 st.write(username)
             with col2:
                 if st.button(f"Unfollow {username}", key=f"unfollow_{username}"):
                     st.session_state['do_unfollow'] = username
                     st.rerun()
+            with col3:
+                if st.button("View Posts", key=f"view_posts_{username}"):
+                    st.session_state['view_user_posts'] = username
+                    st.rerun()
+
+    @staticmethod
+    async def display_user_posts(username):
+        st.subheader(f"Posts by {username}")
+        posts = await PostManager.get_user_posts_by_username(username)
+        if posts:
+            for post in posts:
+                st.write(f"{post.content}")
+                st.write(f"Posted on: {post.timestamp}")
+                if post.post_type == 1:  # Assuming 1 is the value for REPOST
+                    st.write("(Repost)")
+                st.markdown("---")
+        else:
+            st.write(f"{username} hasn't posted anything yet.")
 
 
 async def app():
@@ -77,4 +99,8 @@ async def app():
             else:
                 st.error(f"Failed to unfollow {target_username}")
 
-        await FollowUIManager.display_following()
+        if 'view_user_posts' in st.session_state and st.session_state['view_user_posts']:
+            username = st.session_state.pop('view_user_posts')
+            await FollowUIManager.display_user_posts(username)
+        else:
+            await FollowUIManager.display_following()

@@ -1,6 +1,7 @@
 import streamlit as st
 from rpc.user import UserManager
 from rpc.clients import get_user
+from rpc.posts import PostManager
 
 
 class ProfileUIManager:
@@ -10,6 +11,12 @@ class ProfileUIManager:
             st.session_state.edit_mode = False
         if 'user_info' not in st.session_state:
             st.session_state.user_info = None
+        if 'do_post' not in st.session_state:
+            st.session_state.do_post = None
+        if 'do_repost' not in st.session_state:
+            st.session_state.do_repost = None
+        if 'do_delete' not in st.session_state:
+            st.session_state.do_delete = None
 
     @staticmethod
     async def load_user_info():
@@ -60,6 +67,31 @@ class ProfileUIManager:
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
+    @staticmethod
+    def render_post_form():
+        with st.form('create_post'):
+            content = st.text_area('Write your post here')
+            submitted = st.form_submit_button('Post')
+            if submitted:
+                st.session_state['do_post'] = content
+                st.rerun()
+
+    @staticmethod
+    async def display_posts():
+        posts = await PostManager.get_user_posts()
+        st.subheader("Your Posts:")
+        for post in posts:
+            st.write(f"{post.content} (Posted on {post.timestamp})")
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("Delete", key=f"delete_{post.post_id}"):
+                    st.session_state['do_delete'] = post.post_id
+                    st.rerun()
+            with col2:
+                if st.button("Repost", key=f"repost_{post.post_id}"):
+                    st.session_state['do_repost'] = post.post_id
+                    st.rerun()
+
 
 async def app():
     ProfileUIManager.initialize_session_state()
@@ -77,3 +109,38 @@ async def app():
             if updated_info:
                 await ProfileUIManager.update_user_profile(updated_info)
                 st.rerun()
+
+        # Post functionality
+        ProfileUIManager.render_post_form()
+
+        if st.session_state['do_post']:
+            content = st.session_state.pop('do_post')
+            post = await PostManager.create_post(content)
+            if post:
+                st.success("Post created successfully!")
+            else:
+                st.error("Failed to create post.")
+            st.rerun()
+
+        if st.session_state['do_repost']:
+            original_post_id = st.session_state.pop('do_repost')
+            content = f"Repost of post {original_post_id}"
+            repost = await PostManager.repost(original_post_id, content)
+            if repost:
+                st.success("Repost created successfully!")
+            else:
+                st.error("Failed to create repost.")
+            st.rerun()
+
+        if st.session_state['do_delete']:
+            post_id = st.session_state.pop('do_delete')
+            success = await PostManager.delete_post(post_id)
+            if success:
+                st.success("Post deleted successfully!")
+            else:
+                st.error("Failed to delete post.")
+            st.rerun()
+
+        await ProfileUIManager.display_posts()
+    else:
+        st.warning("You are not logged in. Please log in to view your profile.")

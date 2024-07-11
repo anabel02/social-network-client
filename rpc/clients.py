@@ -8,6 +8,7 @@ from typing import Optional
 # Constants
 USER = 50051
 AUTH = 50052
+POST = 50053
 FOLLOW = 50054
 
 TOKEN = 'token'

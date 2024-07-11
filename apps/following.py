@@ -63,13 +63,31 @@ class FollowUIManager:
         posts = await PostManager.get_user_posts_by_username(username)
         if posts:
             for post in posts:
-                st.write(f"{post.content}")
-                st.write(f"Posted on: {post.timestamp}")
-                if post.post_type == 1:  # Assuming 1 is the value for REPOST
-                    st.write("(Repost)")
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.write(f"{post.content}")
+                    st.write(f"Posted on: {post.timestamp}")
+                    if post.post_type == 1:  # Assuming 1 is the value for REPOST
+                        st.write("(Repost)")
+                with col2:
+                    if st.button("Repost", key=f"repost_{post.post_id}"):
+                        st.session_state['do_repost'] = post.post_id
+                        st.rerun()
                 st.markdown("---")
         else:
             st.write(f"{username} hasn't posted anything yet.")
+
+    @staticmethod
+    async def handle_repost(post_id):
+        repost_content = st.text_input("Add a comment to your repost (optional):")
+        if st.button("Confirm Repost"):
+            reposted = await PostManager.repost(post_id, repost_content)
+            if reposted:
+                st.success("Post reposted successfully!")
+            else:
+                st.error("Failed to repost. Please try again.")
+            st.session_state['do_repost'] = None
+            st.rerun()
 
 
 async def app():
@@ -99,7 +117,9 @@ async def app():
             else:
                 st.error(f"Failed to unfollow {target_username}")
 
-        if 'view_user_posts' in st.session_state and st.session_state['view_user_posts']:
+        if 'do_repost' in st.session_state and st.session_state['do_repost']:
+            await FollowUIManager.handle_repost(st.session_state['do_repost'])
+        elif 'view_user_posts' in st.session_state and st.session_state['view_user_posts']:
             username = st.session_state.pop('view_user_posts')
             await FollowUIManager.display_user_posts(username)
         else:

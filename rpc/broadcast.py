@@ -2,12 +2,11 @@ import socket
 import logging
 import time
 from store import Storage
-from typing import List
 
 BROADCAST_PORT = 11000
 
 
-def discover(timeout: int = 5) -> List[str]:
+def discover(timeout: int = 5):
     broadcast = '255.255.255.255'
     logging.info(f"Discovering on {broadcast}")
 
@@ -17,7 +16,7 @@ def discover(timeout: int = 5) -> List[str]:
     sock.settimeout(timeout)
 
     try:
-        sock.sendto(b"Are you a chord?", (broadcast, BROADCAST_PORT))  
+        sock.sendto(b"Are you a chord?", (broadcast, BROADCAST_PORT))
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
@@ -35,17 +34,11 @@ def discover(timeout: int = 5) -> List[str]:
     finally:
         sock.close()
 
-    if not servers:
-        logging.info("No servers found")
-    else:
-        logging.info(f"Found {len(servers)} servers: {servers}")
-
 
 def update_servers():
     servers = list(discover())
-    logging.info(f"Found servers: {servers}")
     if servers:
-        logging.info("Updating servers")
+        logging.info(f"Found {len(servers)} servers: {servers}")
         Storage.store('server', servers)
     else:
         logging.info("No servers found")

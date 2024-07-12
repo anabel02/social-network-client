@@ -10,20 +10,6 @@ from rpc.broadcast import update_servers
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Set page config at the very beginning of the script
-st.set_page_config(layout='wide')
-
-
-# Use st.cache_resource for initialization
-@st.cache_resource
-def initialize_app():
-    user = get_user()
-    app = MultiApp(user)
-    app.add_app("Login", login.app)
-    app.add_app("Profile", profile.app)
-    app.add_app("Following users", following.app)
-    return app
-
 
 async def periodic_task(interval, func, *args, **kwargs):
     while True:
@@ -41,13 +27,17 @@ async def periodic_task(interval, func, *args, **kwargs):
 
 async def run_periodic_tasks():
     tasks = [
-        periodic_task(10, update_servers)
+        periodic_task(60, update_servers)
     ]
     await asyncio.gather(*tasks)
 
 
 async def main():
-    app = initialize_app()
+    user = get_user()
+    app = MultiApp(user)
+    app.add_app("Login", login.app)
+    app.add_app("Profile", profile.app)
+    app.add_app("Following users", following.app)
 
     # Run the periodic task and the main app concurrently
     await asyncio.gather(

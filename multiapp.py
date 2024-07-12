@@ -40,8 +40,6 @@ class MultiApp:
         self.apps[title] = func
 
     async def run(self):
-        st.set_page_config(layout='wide')
-
         with st.sidebar:
             selected = option_menu("Main Menu" if not self.user else self.user['name'], list(self.apps.keys()),
                                    icons=[],

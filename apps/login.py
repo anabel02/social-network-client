@@ -56,7 +56,7 @@ async def app():
             await AuthManager.logout()
     else:
         nav_options = ['Login', 'Sign Up']
-        selected_option = st.sidebar.selectbox('', nav_options)
+        selected_option = st.sidebar.selectbox('Options', nav_options)
 
         st.title(selected_option)
 

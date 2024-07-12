@@ -1,6 +1,7 @@
 import grpc
 import jwt
 import logging
+import random
 from grpc import aio as grpc_aio
 from store import Storage
 from typing import Optional
@@ -20,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_host(service):
-    return f'172.17.0.2:{service}'
+    server = random.choice(Storage.get('server', []) + ['localhost'])
+    return f"{server}:{service}"
 
 
 def get_user() -> Optional[dict]:

@@ -142,5 +142,3 @@ async def app():
             st.rerun()
 
         await ProfileUIManager.display_posts()
-    else:
-        st.warning("You are not logged in. Please log in to view your profile.")

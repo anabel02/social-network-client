@@ -1,6 +1,6 @@
 import streamlit as st
 from rpc.user import UserManager
-from rpc.clients import get_user
+from rpc.client import get_user
 from rpc.posts import PostManager
 
 

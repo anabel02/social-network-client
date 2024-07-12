@@ -2,10 +2,9 @@ import asyncio
 import streamlit as st
 from multiapp import MultiApp
 from apps import login, profile, following
-from rpc.clients import get_user
+from rpc.client import get_user
 import logging
 from rpc.broadcast import update_servers
-from store import Storage
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -26,28 +25,25 @@ def initialize_app():
     return app
 
 
-# Define a periodic task
-async def periodic_task(interval, func):
+async def periodic_task(interval, func, *args, **kwargs):
     while True:
-        print(f"Attempting to run {func.__name__}")
         try:
             if asyncio.iscoroutinefunction(func):
-                await func()
+                await func(*args, **kwargs)
             else:
-                func()
-            print(f"Successfully ran {func.__name__}")
+                func(*args, **kwargs)
         except Exception as e:
-            print(f'Function {func.__name__} failed with exception: {e}')
+            logging.error(f'Function {func.__name__} failed with exception: {e}')
         finally:
             print(f"Waiting {interval} seconds before next attempt")
             await asyncio.sleep(interval)
 
 
-# Define a periodic task to update the servers
-async def run_periodic_task():
-    if not Storage.get('repeat'):
-        Storage.store('repeat', True)
-        await periodic_task(10, update_servers)
+async def run_periodic_tasks():
+    tasks = [
+        periodic_task(10, update_servers)
+    ]
+    await asyncio.gather(*tasks)
 
 
 async def main():
@@ -55,7 +51,7 @@ async def main():
 
     # Run the periodic task and the main app concurrently
     await asyncio.gather(
-        run_periodic_task(),
+        run_periodic_tasks(),
         app.run()
     )
 

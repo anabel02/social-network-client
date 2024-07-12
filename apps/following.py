@@ -1,7 +1,7 @@
 import streamlit as st
 from rpc.follow import FollowManager
 from rpc.posts import PostManager
-from rpc.clients import get_user
+from rpc.client import get_user
 from rpc.user import UserManager
 
 

@@ -2,7 +2,7 @@ import streamlit as st
 from store import Storage
 from rpc.auth import AuthManager
 from grpclib import GRPCError
-from rpc.clients import TOKEN, get_user
+from rpc.client import TOKEN, get_user
 
 
 class LoginUIManager:

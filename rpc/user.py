@@ -3,7 +3,7 @@ from grpclib import GRPCError
 import proto.users_service_pb2 as user_pb2
 import proto.users_service_pb2_grpc as user_pb2_grpc
 import proto.db_models_pb2 as db_models_pb2
-from rpc.clients import USER, create_channel
+from rpc.client import USER, create_channel
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -2,7 +2,7 @@ import logging
 from grpclib import GRPCError
 import proto.follow_service_pb2 as follow_pb2
 import proto.follow_service_pb2_grpc as follow_pb2_grpc
-from rpc.clients import FOLLOW, create_channel, get_user
+from rpc.client import FOLLOW, create_channel, get_user
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

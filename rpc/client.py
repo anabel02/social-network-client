@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_host(service):
-    server = random.choice(Storage.get('server', []) + ['localhost'])
+    server = random.choice(Storage.get('server', default=['localhost']))
     return f"{server}:{service}"
 
 

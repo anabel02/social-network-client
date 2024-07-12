@@ -5,7 +5,7 @@ import proto.auth_service_pb2 as auth_pb2
 import proto.auth_service_pb2_grpc as auth_pb2_grpc
 import proto.db_models_pb2 as db_models_pb2
 import bcrypt
-from rpc.clients import AUTH, create_channel, TOKEN
+from rpc.client import AUTH, create_channel, TOKEN
 from store import Storage
 
 

@@ -1,38 +1,44 @@
 import socket
 import logging
+import time
 from store import Storage
+from typing import List
 
 BROADCAST_PORT = 11000
 
 
-def discover():
+def discover(timeout: int = 5) -> List[str]:
     broadcast = '255.255.255.255'
     logging.info(f"Discovering on {broadcast}")
-    # udp broadcast on broadcast address
+
+    servers = []
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sock.settimeout(1)
-    sock.sendto(b"Are you a chord?", (broadcast, BROADCAST_PORT))
-    response = None
-    address = None
-    while True:
-        try:
-            logging.info("Waiting for response")
-            response, address = sock.recvfrom(1024)
-            logging.info(f"Received {response} from {address}")
-            if response.startswith(b"Yes, I am a chord"):
-                yield address[0]
-        except socket.timeout:
-            logging.info("Timeout")
-            break
-        except BaseException as e:
-            logging.info(f"Error: {e}")
-            break
+    sock.settimeout(timeout)
+
     try:
+        sock.sendto(b"Are you a chord?", (broadcast, BROADCAST_PORT))  
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                response, address = sock.recvfrom(1024)
+                logging.info(f"Received {response} from {address}")
+                if response.startswith(b"Yes, I am a chord"):
+                    if address[0] not in servers:
+                        servers.append(address[0])
+                        yield address[0]
+            except socket.timeout:
+                # Timeout for this iteration, continue listening
+                continue
+    except Exception as e:
+        logging.error(f"Error during discovery: {e}")
+    finally:
         sock.close()
-    except BaseException as e:
-        logging.info(f"Error closing socket: {e}")
-    logging.info("No more servers found")
+
+    if not servers:
+        logging.info("No servers found")
+    else:
+        logging.info(f"Found {len(servers)} servers: {servers}")
 
 
 def update_servers():

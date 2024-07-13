@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package socialnetwork;
 
-import "proto/db_models.proto";
-
 service FollowService {
   // Follow a user
   rpc FollowUser (FollowUserRequest) returns (FollowUserResponse);
@@ -36,5 +34,5 @@ message GetFollowingRequest {
 }
   
 message GetFollowingResponse {
-    repeated User following = 1;
+    repeated string following_usernames = 1;
 }

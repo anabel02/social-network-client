@@ -59,18 +59,17 @@ class FollowUIManager:
 
     @staticmethod
     async def display_user_posts(username):
-        st.subheader(f"Posts by {username}")
         posts = await PostManager.get_user_posts_by_username(username)
+        st.subheader(f"Posts by {username}")
         if posts:
             for post in posts:
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    st.write(f"{post.content}")
-                    st.write(f"Posted on: {post.timestamp}")
-                    if post.post_type == 1:
-                        st.write("(Repost)")
-                    elif post.post_type == 2:
-                        st.write("(Repost of a Repost)")
+                    if post.original_post_id:
+                        st.write(f"Reposted on {post.timestamp}")
+                    else:
+                        st.write(f"Posted on {post.timestamp}")
+                    st.write(post.content)
                 with col2:
                     if st.button("Repost", key=f"repost_{post.post_id}"):
                         st.session_state['do_repost'] = post.post_id

@@ -12,28 +12,27 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from proto import db_models_pb2 as proto_dot_db__models__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1aproto/follow_service.proto\x12\rsocialnetwork\x1a\x15proto/db_models.proto\"<\n\x11\x46ollowUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x16\n\x0etarget_user_id\x18\x02 \x01(\t\"\x14\n\x12\x46ollowUserResponse\">\n\x13UnfollowUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x16\n\x0etarget_user_id\x18\x02 \x01(\t\"\x16\n\x14UnfollowUserResponse\"&\n\x13GetFollowingRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\">\n\x14GetFollowingResponse\x12&\n\tfollowing\x18\x01 \x03(\x0b\x32\x13.socialnetwork.User2\x94\x02\n\rFollowService\x12Q\n\nFollowUser\x12 .socialnetwork.FollowUserRequest\x1a!.socialnetwork.FollowUserResponse\x12W\n\x0cUnfollowUser\x12\".socialnetwork.UnfollowUserRequest\x1a#.socialnetwork.UnfollowUserResponse\x12W\n\x0cGetFollowing\x12\".socialnetwork.GetFollowingRequest\x1a#.socialnetwork.GetFollowingResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1aproto/follow_service.proto\x12\rsocialnetwork\"<\n\x11\x46ollowUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x16\n\x0etarget_user_id\x18\x02 \x01(\t\"\x14\n\x12\x46ollowUserResponse\">\n\x13UnfollowUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x16\n\x0etarget_user_id\x18\x02 \x01(\t\"\x16\n\x14UnfollowUserResponse\"&\n\x13GetFollowingRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"3\n\x14GetFollowingResponse\x12\x1b\n\x13\x66ollowing_usernames\x18\x01 \x03(\t2\x94\x02\n\rFollowService\x12Q\n\nFollowUser\x12 .socialnetwork.FollowUserRequest\x1a!.socialnetwork.FollowUserResponse\x12W\n\x0cUnfollowUser\x12\".socialnetwork.UnfollowUserRequest\x1a#.socialnetwork.UnfollowUserResponse\x12W\n\x0cGetFollowing\x12\".socialnetwork.GetFollowingRequest\x1a#.socialnetwork.GetFollowingResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'proto.follow_service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_FOLLOWUSERREQUEST']._serialized_start=68
-  _globals['_FOLLOWUSERREQUEST']._serialized_end=128
-  _globals['_FOLLOWUSERRESPONSE']._serialized_start=130
-  _globals['_FOLLOWUSERRESPONSE']._serialized_end=150
-  _globals['_UNFOLLOWUSERREQUEST']._serialized_start=152
-  _globals['_UNFOLLOWUSERREQUEST']._serialized_end=214
-  _globals['_UNFOLLOWUSERRESPONSE']._serialized_start=216
-  _globals['_UNFOLLOWUSERRESPONSE']._serialized_end=238
-  _globals['_GETFOLLOWINGREQUEST']._serialized_start=240
-  _globals['_GETFOLLOWINGREQUEST']._serialized_end=278
-  _globals['_GETFOLLOWINGRESPONSE']._serialized_start=280
-  _globals['_GETFOLLOWINGRESPONSE']._serialized_end=342
-  _globals['_FOLLOWSERVICE']._serialized_start=345
-  _globals['_FOLLOWSERVICE']._serialized_end=621
+  _globals['_FOLLOWUSERREQUEST']._serialized_start=45
+  _globals['_FOLLOWUSERREQUEST']._serialized_end=105
+  _globals['_FOLLOWUSERRESPONSE']._serialized_start=107
+  _globals['_FOLLOWUSERRESPONSE']._serialized_end=127
+  _globals['_UNFOLLOWUSERREQUEST']._serialized_start=129
+  _globals['_UNFOLLOWUSERREQUEST']._serialized_end=191
+  _globals['_UNFOLLOWUSERRESPONSE']._serialized_start=193
+  _globals['_UNFOLLOWUSERRESPONSE']._serialized_end=215
+  _globals['_GETFOLLOWINGREQUEST']._serialized_start=217
+  _globals['_GETFOLLOWINGREQUEST']._serialized_end=255
+  _globals['_GETFOLLOWINGRESPONSE']._serialized_start=257
+  _globals['_GETFOLLOWINGRESPONSE']._serialized_end=308
+  _globals['_FOLLOWSERVICE']._serialized_start=311
+  _globals['_FOLLOWSERVICE']._serialized_end=587
 # @@protoc_insertion_point(module_scope)

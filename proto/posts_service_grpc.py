@@ -9,6 +9,7 @@ import grpclib.client
 if typing.TYPE_CHECKING:
     import grpclib.server
 
+import proto.db_models_pb2
 import proto.posts_service_pb2
 
 

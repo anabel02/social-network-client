@@ -56,7 +56,7 @@ class PostManager:
                 await stub.DeletePost(request)
                 # Remove the deleted post from the cache
                 posts = await Storage.async_disk_get(f"{current_user_username}_posts", [])
-                posts = [p for p in posts if p.id != post_id]
+                posts = [p for p in posts if p.post_id != post_id]
                 await Storage.async_disk_store(f"{current_user_username}_posts", posts)
                 return True
             except GRPCError as error:

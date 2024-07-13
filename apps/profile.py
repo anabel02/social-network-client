@@ -80,17 +80,26 @@ class ProfileUIManager:
     async def display_posts():
         posts = await PostManager.get_user_posts()
         st.subheader("Your Posts:")
-        for post in posts:
-            st.write(f"{post.content} (Posted on {post.timestamp})")
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("Delete", key=f"delete_{post.post_id}"):
-                    st.session_state['do_delete'] = post.post_id
-                    st.rerun()
-            with col2:
-                if st.button("Repost", key=f"repost_{post.post_id}"):
-                    st.session_state['do_repost'] = post.post_id
-                    st.rerun()
+        if posts:
+            for post in posts:
+                col1, col2, col3 = st.columns([3, 1, 1])
+                with col1:
+                    if post.original_post_id:
+                        st.write(f"Reposted on {post.timestamp}")
+                    else:
+                        st.write(f"Posted on {post.timestamp}")
+                    st.write(post.content)
+                with col2:
+                    if st.button("Delete", key=f"delete_{post.post_id}"):
+                        st.session_state['do_delete'] = post.post_id
+                        st.rerun()
+                with col3:
+                    if st.button("Repost", key=f"repost_{post.post_id}"):
+                        st.session_state['do_repost'] = post.post_id
+                        st.rerun()
+                st.markdown("---")
+        else:
+            st.write("You hasn't posted anything yet.")
 
 
 async def app():

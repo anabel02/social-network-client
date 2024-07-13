@@ -12,39 +12,36 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
+from proto import db_models_pb2 as proto_dot_db__models__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19proto/posts_service.proto\x12\rsocialnetwork\"\xaa\x01\n\x07PostDto\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\x12*\n\tpost_type\x18\x04 \x01(\x0e\x32\x17.socialnetwork.PostType\x12\x11\n\ttimestamp\x18\x05 \x01(\x03\x12-\n\roriginal_post\x18\x06 \x01(\x0b\x32\x16.socialnetwork.PostDto\"5\n\x11\x43reatePostRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\":\n\x12\x43reatePostResponse\x12$\n\x04post\x18\x01 \x01(\x0b\x32\x16.socialnetwork.PostDto\"!\n\x0eGetPostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\"7\n\x0fGetPostResponse\x12$\n\x04post\x18\x01 \x01(\x0b\x32\x16.socialnetwork.PostDto\"K\n\rRepostRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x18\n\x10original_post_id\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\"6\n\x0eRepostResponse\x12$\n\x04post\x18\x01 \x01(\x0b\x32\x16.socialnetwork.PostDto\"&\n\x13GetUserPostsRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"=\n\x14GetUserPostsResponse\x12%\n\x05posts\x18\x01 \x03(\x0b\x32\x16.socialnetwork.PostDto\"$\n\x11\x44\x65letePostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\"\x14\n\x12\x44\x65letePostResponse*:\n\x08PostType\x12\x0c\n\x08ORIGINAL\x10\x00\x12\n\n\x06REPOST\x10\x01\x12\x14\n\x10REPOST_OF_REPOST\x10\x02\x32\x9d\x03\n\x0bPostService\x12Q\n\nCreatePost\x12 .socialnetwork.CreatePostRequest\x1a!.socialnetwork.CreatePostResponse\x12H\n\x07GetPost\x12\x1d.socialnetwork.GetPostRequest\x1a\x1e.socialnetwork.GetPostResponse\x12\x45\n\x06Repost\x12\x1c.socialnetwork.RepostRequest\x1a\x1d.socialnetwork.RepostResponse\x12Q\n\nDeletePost\x12 .socialnetwork.DeletePostRequest\x1a!.socialnetwork.DeletePostResponse\x12W\n\x0cGetUserPosts\x12\".socialnetwork.GetUserPostsRequest\x1a#.socialnetwork.GetUserPostsResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19proto/posts_service.proto\x12\rsocialnetwork\x1a\x15proto/db_models.proto\"5\n\x11\x43reatePostRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\"7\n\x12\x43reatePostResponse\x12!\n\x04post\x18\x01 \x01(\x0b\x32\x13.socialnetwork.Post\"!\n\x0eGetPostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\"4\n\x0fGetPostResponse\x12!\n\x04post\x18\x01 \x01(\x0b\x32\x13.socialnetwork.Post\"K\n\rRepostRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x18\n\x10original_post_id\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\"3\n\x0eRepostResponse\x12!\n\x04post\x18\x01 \x01(\x0b\x32\x13.socialnetwork.Post\"&\n\x13GetUserPostsRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\":\n\x14GetUserPostsResponse\x12\"\n\x05posts\x18\x01 \x03(\x0b\x32\x13.socialnetwork.Post\"$\n\x11\x44\x65letePostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\"\x14\n\x12\x44\x65letePostResponse2\x9d\x03\n\x0bPostService\x12Q\n\nCreatePost\x12 .socialnetwork.CreatePostRequest\x1a!.socialnetwork.CreatePostResponse\x12H\n\x07GetPost\x12\x1d.socialnetwork.GetPostRequest\x1a\x1e.socialnetwork.GetPostResponse\x12\x45\n\x06Repost\x12\x1c.socialnetwork.RepostRequest\x1a\x1d.socialnetwork.RepostResponse\x12Q\n\nDeletePost\x12 .socialnetwork.DeletePostRequest\x1a!.socialnetwork.DeletePostResponse\x12W\n\x0cGetUserPosts\x12\".socialnetwork.GetUserPostsRequest\x1a#.socialnetwork.GetUserPostsResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'proto.posts_service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_POSTTYPE']._serialized_start=720
-  _globals['_POSTTYPE']._serialized_end=778
-  _globals['_POSTDTO']._serialized_start=45
-  _globals['_POSTDTO']._serialized_end=215
-  _globals['_CREATEPOSTREQUEST']._serialized_start=217
-  _globals['_CREATEPOSTREQUEST']._serialized_end=270
-  _globals['_CREATEPOSTRESPONSE']._serialized_start=272
-  _globals['_CREATEPOSTRESPONSE']._serialized_end=330
-  _globals['_GETPOSTREQUEST']._serialized_start=332
-  _globals['_GETPOSTREQUEST']._serialized_end=365
-  _globals['_GETPOSTRESPONSE']._serialized_start=367
-  _globals['_GETPOSTRESPONSE']._serialized_end=422
-  _globals['_REPOSTREQUEST']._serialized_start=424
-  _globals['_REPOSTREQUEST']._serialized_end=499
-  _globals['_REPOSTRESPONSE']._serialized_start=501
-  _globals['_REPOSTRESPONSE']._serialized_end=555
-  _globals['_GETUSERPOSTSREQUEST']._serialized_start=557
-  _globals['_GETUSERPOSTSREQUEST']._serialized_end=595
-  _globals['_GETUSERPOSTSRESPONSE']._serialized_start=597
-  _globals['_GETUSERPOSTSRESPONSE']._serialized_end=658
-  _globals['_DELETEPOSTREQUEST']._serialized_start=660
-  _globals['_DELETEPOSTREQUEST']._serialized_end=696
-  _globals['_DELETEPOSTRESPONSE']._serialized_start=698
-  _globals['_DELETEPOSTRESPONSE']._serialized_end=718
-  _globals['_POSTSERVICE']._serialized_start=781
-  _globals['_POSTSERVICE']._serialized_end=1194
+  _globals['_CREATEPOSTREQUEST']._serialized_start=67
+  _globals['_CREATEPOSTREQUEST']._serialized_end=120
+  _globals['_CREATEPOSTRESPONSE']._serialized_start=122
+  _globals['_CREATEPOSTRESPONSE']._serialized_end=177
+  _globals['_GETPOSTREQUEST']._serialized_start=179
+  _globals['_GETPOSTREQUEST']._serialized_end=212
+  _globals['_GETPOSTRESPONSE']._serialized_start=214
+  _globals['_GETPOSTRESPONSE']._serialized_end=266
+  _globals['_REPOSTREQUEST']._serialized_start=268
+  _globals['_REPOSTREQUEST']._serialized_end=343
+  _globals['_REPOSTRESPONSE']._serialized_start=345
+  _globals['_REPOSTRESPONSE']._serialized_end=396
+  _globals['_GETUSERPOSTSREQUEST']._serialized_start=398
+  _globals['_GETUSERPOSTSREQUEST']._serialized_end=436
+  _globals['_GETUSERPOSTSRESPONSE']._serialized_start=438
+  _globals['_GETUSERPOSTSRESPONSE']._serialized_end=496
+  _globals['_DELETEPOSTREQUEST']._serialized_start=498
+  _globals['_DELETEPOSTREQUEST']._serialized_end=534
+  _globals['_DELETEPOSTRESPONSE']._serialized_start=536
+  _globals['_DELETEPOSTRESPONSE']._serialized_end=556
+  _globals['_POSTSERVICE']._serialized_start=559
+  _globals['_POSTSERVICE']._serialized_end=972
 # @@protoc_insertion_point(module_scope)

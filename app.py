@@ -1,5 +1,4 @@
 import asyncio
-import streamlit as st
 from multiapp import MultiApp
 from apps import login, profile, following
 from rpc.client import get_user
@@ -14,20 +13,21 @@ logger = logging.getLogger(__name__)
 async def periodic_task(interval, func, *args, **kwargs):
     while True:
         try:
+            logger.info("Trying to run function: {func.__name__}")
             if asyncio.iscoroutinefunction(func):
                 await func(*args, **kwargs)
             else:
                 func(*args, **kwargs)
         except Exception as e:
-            logging.error(f'Function {func.__name__} failed with exception: {e}')
+            logger.error(f'Function {func.__name__} failed with exception: {e}')
         finally:
-            print(f"Waiting {interval} seconds before next attempt")
+            logger.info(f"Waiting {interval} seconds before next attempt")
             await asyncio.sleep(interval)
 
 
 async def run_periodic_tasks():
     tasks = [
-        periodic_task(60, update_servers)
+        periodic_task(10, update_servers)
     ]
     await asyncio.gather(*tasks)
 

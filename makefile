@@ -2,7 +2,7 @@
 IMAGE_NAME = socialnetwork-client
 
 # Port on which the Streamlit application will run
-PORT = 8501
+PORT ?= 8501
 
 # Project directory on your local machine
 PROJECT_DIR = $(shell pwd)

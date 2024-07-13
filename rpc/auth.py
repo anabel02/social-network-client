@@ -28,6 +28,8 @@ class AuthManager:
             stub = auth_pb2_grpc.AuthStub(channel)
             try:
                 await stub.SignUp(request)
+                # Store the user's information in the cache
+                await Storage.async_disk_store(f"user_{username}", user)
                 return True
             except GRPCError as error:
                 logger.error(f"An error occurred creating the user: {error.status}: {error.message}")

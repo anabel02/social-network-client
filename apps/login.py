@@ -1,8 +1,7 @@
 import streamlit as st
-from store import Storage
 from rpc.auth import AuthManager
 from grpclib import GRPCError
-from rpc.client import TOKEN, get_user
+from rpc.client import get_user
 
 
 class LoginUIManager:
@@ -47,10 +46,9 @@ async def app():
         except GRPCError as error:
             st.error(f"Sign up failed: {error.message}")
 
-    token: str = await Storage.async_disk_get(TOKEN)
+    user = get_user()
 
-    if token:
-        user = get_user()
+    if user:
         st.write(f'Hello {user["name"]}, you are logged in')
         if st.button('Log Out'):
             await AuthManager.logout()

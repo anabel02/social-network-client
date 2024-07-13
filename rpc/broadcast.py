@@ -10,7 +10,6 @@ def discover(timeout: int = 5):
     broadcast = '255.255.255.255'
     logging.info(f"Discovering on {broadcast}")
 
-    servers = []
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     sock.settimeout(timeout)
@@ -23,9 +22,7 @@ def discover(timeout: int = 5):
                 response, address = sock.recvfrom(1024)
                 logging.info(f"Received {response} from {address}")
                 if response.startswith(b"Yes, I am a chord"):
-                    if address[0] not in servers:
-                        servers.append(address[0])
-                        yield address[0]
+                    yield address[0]
             except socket.timeout:
                 # Timeout for this iteration, continue listening
                 continue

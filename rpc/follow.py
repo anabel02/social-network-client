@@ -72,9 +72,9 @@ class FollowManager:
             stub = follow_pb2_grpc.FollowServiceStub(channel)
             try:
                 response = await stub.GetFollowing(request)
-                if not response.following:
+                if not response.following_usernames:
                     return []
-                following = [user.username for user in response.following]
+                following = [username for username in response.following_usernames]
                 # Store the following list in the cache
                 await Storage.async_disk_store(f"{current_user_username}_following", following)
                 return following

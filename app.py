@@ -1,6 +1,6 @@
 import asyncio
 from multiapp import MultiApp
-from pages import login, profile, following
+from apps import login, profile, following
 from rpc.client import get_user
 import logging
 from rpc.broadcast import update_servers

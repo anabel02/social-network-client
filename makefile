@@ -49,3 +49,8 @@ run: venv
 .PHONY: clean
 clean:
 	rm -rf $(VENV_DIR)
+
+.PHONY: proto
+proto:
+	$(PYTHON) -m grpc_tools.protoc --proto_path=. --python_out=. --python_grpc_out=. \
+	-I. ./proto/*.proto

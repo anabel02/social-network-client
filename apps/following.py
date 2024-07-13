@@ -59,8 +59,8 @@ class FollowUIManager:
 
     @staticmethod
     async def display_user_posts(username):
-        posts = await PostManager.get_user_posts_by_username(username)
         st.subheader(f"Posts by {username}")
+        posts = await PostManager.get_user_posts_by_username(username)
         if posts:
             for post in posts:
                 col1, col2 = st.columns([3, 1])

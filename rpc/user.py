@@ -5,6 +5,7 @@ import proto.db_models_pb2 as db_models_pb2
 from rpc.client import USER, create_channel
 from store import Storage
 import grpc.aio
+from rpc.requests_queue import add_request, Request
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -43,10 +44,14 @@ class UserManager:
                 await stub.EditUser(request)
                 # Update the cached user information
                 await Storage.async_disk_store(f"user_{user.username}", user)
-                return True
+                return 0
             except grpc.aio.AioRpcError as e:
                 logger.error(f"Error editing user info: {e.code()}; {e.details()}")
-                return False
+                if e.code() == grpc.StatusCode.UNAVAILABLE:
+                    add_request(Request(USER, request))
+                    return 2
+                return 1
             except Exception as e:
                 logger.error(f"Error during edit user info: {str(e)}")
-                return None
+                add_request(Request(USER, request))
+                return 2

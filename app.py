@@ -4,6 +4,7 @@ from apps import login, profile, following
 from rpc.client import get_user
 import logging
 from rpc.broadcast import update_servers
+from rpc.requests_queue import process_requests
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -27,7 +28,8 @@ async def periodic_task(interval, func, *args, **kwargs):
 
 async def run_periodic_tasks():
     tasks = [
-        periodic_task(10, update_servers)
+        periodic_task(10, update_servers),
+        periodic_task(17, process_requests)
     ]
     await asyncio.gather(*tasks)
 

@@ -79,8 +79,8 @@ class FollowUIManager:
 
     @staticmethod
     async def handle_repost(post_id):
-        reposted = await PostManager.repost(post_id, '')
-        if reposted:
+        response = await PostManager.repost(post_id)
+        if response == 0:
             st.success("Post reposted successfully!")
         else:
             st.error("Failed to repost. Please try again.")
@@ -100,19 +100,21 @@ async def app():
 
         if 'do_follow' in st.session_state:
             target_username = st.session_state.pop('do_follow')
-            success = await FollowManager.follow_user(target_username)
-            if success:
+            response = await FollowManager.follow_user(target_username)
+            if response == 0:
                 st.success(f"You are now following {target_username}")
-            else:
+            elif response == 1:
                 st.error(f"Failed to follow {target_username}")
+            elif response == 2:
+                st.error(f"Failed to follow {target_username}. Request stored locally. Check your connection.")
 
         if 'do_unfollow' in st.session_state:
             target_username = st.session_state.pop('do_unfollow')
-            success = await FollowManager.unfollow_user(target_username)
-            if success:
+            response = await FollowManager.unfollow_user(target_username)
+            if response == 0:
                 st.success(f"You have unfollowed {target_username}")
             else:
-                st.error(f"Failed to unfollow {target_username}")
+                st.error(f"Failed to follow {target_username}")
 
         if 'do_repost' in st.session_state and st.session_state['do_repost']:
             await FollowUIManager.handle_repost(st.session_state['do_repost'])

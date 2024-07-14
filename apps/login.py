@@ -1,7 +1,8 @@
 import streamlit as st
 from rpc.auth import AuthManager
-from grpclib import GRPCError
+import grpc.aio
 from rpc.client import get_user
+from store import Storage
 
 
 class LoginUIManager:
@@ -27,6 +28,12 @@ class LoginUIManager:
                 st.session_state['do_signup'] = (username, password, name, email)
                 st.rerun()
 
+    @staticmethod
+    async def logout():
+        Storage.clear()
+        st.success('Logged Out Successfully')
+        st.rerun()
+
 
 async def app():
     if 'do_login' in st.session_state:
@@ -43,15 +50,15 @@ async def app():
             login_success = await AuthManager.login(username, password)
             if not login_success:
                 st.warning("Account created, but automatic login failed. Please log in manually.")
-        except GRPCError as error:
-            st.error(f"Sign up failed: {error.message}")
+        except grpc.aio.AioRpcError as e:
+            st.error(f"Sign up failed: {e.details()}")
 
     user = get_user()
 
     if user:
         st.write(f'Hello {user["name"]}, you are logged in')
         if st.button('Log Out'):
-            await AuthManager.logout()
+            await LoginUIManager.logout()
     else:
         nav_options = ['Login', 'Sign Up']
         selected_option = st.sidebar.selectbox('Options', nav_options)

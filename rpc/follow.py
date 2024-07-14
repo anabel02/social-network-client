@@ -1,9 +1,9 @@
 import logging
-from grpclib import GRPCError
 import proto.follow_service_pb2 as follow_pb2
 import proto.follow_service_pb2_grpc as follow_pb2_grpc
 from rpc.client import FOLLOW, create_channel, get_user
 from store import Storage
+import grpc.aio
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -32,8 +32,8 @@ class FollowManager:
                 following.append(target_username)
                 await Storage.async_disk_store(f"{current_user_username}_following", following)
                 return True
-            except GRPCError as error:
-                logger.error(f"Error following user: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error following user: {e.code()}; {e.details()}")
                 return False
             except Exception as e:
                 logger.error(f"Error during follow: {str(e)}")
@@ -56,8 +56,8 @@ class FollowManager:
                 following = [user for user in following if user != target_username]
                 await Storage.async_disk_store(f"{current_user_username}_following", following)
                 return True
-            except GRPCError as error:
-                logger.error(f"Error unfollowing user: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error unfollowing user: {e.code()}; {e.details()}")
                 return False
             except Exception as e:
                 logger.error(f"Error during unfollow: {str(e)}")
@@ -84,8 +84,8 @@ class FollowManager:
                 # Store the following list in the cache
                 await Storage.async_disk_store(f"{current_user_username}_following", following)
                 return following
-            except GRPCError as error:
-                logger.error(f"Error getting following list: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error getting following list: {e.code()}; {e.details()}")
                 return []
             except Exception as e:
                 logger.error(f"Error during get following: {str(e)}")

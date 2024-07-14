@@ -1,9 +1,9 @@
 import logging
-from grpclib import GRPCError
 import proto.posts_service_pb2 as post_pb2
 import proto.posts_service_pb2_grpc as post_pb2_grpc
 from rpc.client import POST, create_channel, get_user
 from store import Storage
+import grpc.aio
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,9 +23,9 @@ class PostManager:
                 posts = await Storage.async_disk_get(f"{current_user_username}_posts", [])
                 await Storage.async_disk_store(f"{current_user_username}_posts", posts + [response.post])
                 return response.post
-            except GRPCError as error:
-                logger.error(f"Error creating post: {error.message}")
-                return None
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error creating post: {e.code()}; {e.details()}")
+                return False
             except Exception as e:
                 logger.error(f"Error during create post: {str(e)}")
                 return False
@@ -44,9 +44,9 @@ class PostManager:
                 posts = await Storage.async_disk_get(f"{current_user_username}_posts", [])
                 await Storage.async_disk_store(f"{current_user_username}_posts", posts + [response.post])
                 return response.post
-            except GRPCError as error:
-                logger.error(f"Error reposting: {error.message}")
-                return None
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error reposting: {e.code()}; {e.details()}")
+                return False
             except Exception as e:
                 logger.error(f"Error during repost: {str(e)}")
                 return False
@@ -65,8 +65,8 @@ class PostManager:
                 posts = [p for p in posts if p.post_id != post_id]
                 await Storage.async_disk_store(f"{current_user_username}_posts", posts)
                 return True
-            except GRPCError as error:
-                logger.error(f"Error deleting post: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error deleting post: {e.code()}; {e.details()}")
                 return False
             except Exception as e:
                 logger.error(f"Error during delete post: {str(e)}")
@@ -93,8 +93,8 @@ class PostManager:
                 # Store the user's posts in the cache
                 await Storage.async_disk_store(f"{current_user_username}_posts", posts)
                 return posts
-            except GRPCError as error:
-                logger.error(f"Error getting user posts: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error getting user posts: {e.code()}; {e.details()}")
                 return []
             except Exception as e:
                 logger.error(f"Error during get user posts: {str(e)}")
@@ -109,9 +109,9 @@ class PostManager:
             try:
                 response = await stub.GetUserPosts(request)
                 return response.posts
-            except GRPCError as error:
-                logger.error(f"Error getting user posts: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error getting user posts: {e.code()}; {e.details()}")
                 return []
             except Exception as e:
                 logger.error(f"Error during get user posts by username: {str(e)}")
-                return False
+                return []

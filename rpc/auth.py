@@ -1,12 +1,11 @@
-import streamlit as st
 import logging
-from grpclib import GRPCError
 import proto.auth_service_pb2 as auth_pb2
 import proto.auth_service_pb2_grpc as auth_pb2_grpc
 import proto.db_models_pb2 as db_models_pb2
 import bcrypt
 from rpc.client import AUTH, create_channel, TOKEN
 from store import Storage
+import grpc.aio
 
 
 # Configure logging
@@ -31,9 +30,9 @@ class AuthManager:
                 # Store the user's information in the cache
                 await Storage.async_disk_store(f"user_{username}", user)
                 return True
-            except GRPCError as error:
-                logger.error(f"An error occurred creating the user: {error.status}: {error.message}")
-                return False
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"An error occurred creating the user: {e.code()}; {e.details()}")
+                raise e
             except Exception as e:
                 logger.error(f"Error during signup: {str(e)}")
                 return False
@@ -49,15 +48,9 @@ class AuthManager:
                 response = await stub.Login(request)
                 await Storage.async_disk_store(TOKEN, response.token)
                 return True
-            except GRPCError as error:
-                logger.error(f"Login error: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Login error: {e.code()}; {e.details()}")
                 return False
             except Exception as e:
                 logger.error(f"Error during login: {str(e)}")
                 return False
-
-    @staticmethod
-    async def logout():
-        Storage.clear()
-        st.success('Logged Out Successfully')
-        st.rerun()

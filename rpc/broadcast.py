@@ -15,7 +15,7 @@ def discover(timeout: int = 5):
     sock.settimeout(timeout)
 
     try:
-        sock.sendto(b"Are you a chord?", (broadcast, BROADCAST_PORT))
+        sock.sendto(b"Are you a chord?;client", (broadcast, BROADCAST_PORT))
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:

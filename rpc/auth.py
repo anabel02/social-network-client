@@ -35,7 +35,7 @@ class AuthManager:
                 logger.error(f"An error occurred creating the user: {error.status}: {error.message}")
                 return False
             except Exception as e:
-                logger.error(f"Unexpected error during signup: {str(e)}")
+                logger.error(f"Error during signup: {str(e)}")
                 return False
 
     @staticmethod
@@ -51,6 +51,9 @@ class AuthManager:
                 return True
             except GRPCError as error:
                 logger.error(f"Login error: {error.message}")
+                return False
+            except Exception as e:
+                logger.error(f"Error during login: {str(e)}")
                 return False
 
     @staticmethod

@@ -35,6 +35,9 @@ class FollowManager:
             except GRPCError as error:
                 logger.error(f"Error following user: {error.message}")
                 return False
+            except Exception as e:
+                logger.error(f"Error during follow: {str(e)}")
+                return False
 
     @staticmethod
     async def unfollow_user(target_username: str) -> bool:
@@ -55,6 +58,9 @@ class FollowManager:
                 return True
             except GRPCError as error:
                 logger.error(f"Error unfollowing user: {error.message}")
+                return False
+            except Exception as e:
+                logger.error(f"Error during unfollow: {str(e)}")
                 return False
 
     @staticmethod
@@ -80,4 +86,7 @@ class FollowManager:
                 return following
             except GRPCError as error:
                 logger.error(f"Error getting following list: {error.message}")
+                return []
+            except Exception as e:
+                logger.error(f"Error during get following: {str(e)}")
                 return []

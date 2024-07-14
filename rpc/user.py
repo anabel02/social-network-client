@@ -1,10 +1,10 @@
 import logging
-from grpclib import GRPCError
 import proto.users_service_pb2 as user_pb2
 import proto.users_service_pb2_grpc as user_pb2_grpc
 import proto.db_models_pb2 as db_models_pb2
 from rpc.client import USER, create_channel
 from store import Storage
+import grpc.aio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -27,8 +27,8 @@ class UserManager:
                 # Store the user's information in the cache
                 await Storage.async_disk_store(f"user_{username}", response.user)
                 return response.user
-            except GRPCError as error:
-                logger.error(f"Error getting user info: {error.status}: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error getting user info: {e.code()}; {e.details()}")
                 return None
             except Exception as e:
                 logger.error(f"Error during get user info: {str(e)}")
@@ -44,8 +44,8 @@ class UserManager:
                 # Update the cached user information
                 await Storage.async_disk_store(f"user_{user.username}", user)
                 return True
-            except GRPCError as error:
-                logger.error(f"Error editing user info: {error.status}: {error.message}")
+            except grpc.aio.AioRpcError as e:
+                logger.error(f"Error editing user info: {e.code()}; {e.details()}")
                 return False
             except Exception as e:
                 logger.error(f"Error during edit user info: {str(e)}")

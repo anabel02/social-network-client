@@ -26,6 +26,9 @@ class PostManager:
             except GRPCError as error:
                 logger.error(f"Error creating post: {error.message}")
                 return None
+            except Exception as e:
+                logger.error(f"Error during create post: {str(e)}")
+                return False
 
     @staticmethod
     async def repost(original_post_id: str, content: str) -> bool:
@@ -44,6 +47,9 @@ class PostManager:
             except GRPCError as error:
                 logger.error(f"Error reposting: {error.message}")
                 return None
+            except Exception as e:
+                logger.error(f"Error during repost: {str(e)}")
+                return False
 
     @staticmethod
     async def delete_post(post_id: str) -> bool:
@@ -61,6 +67,9 @@ class PostManager:
                 return True
             except GRPCError as error:
                 logger.error(f"Error deleting post: {error.message}")
+                return False
+            except Exception as e:
+                logger.error(f"Error during delete post: {str(e)}")
                 return False
 
     @staticmethod
@@ -87,6 +96,9 @@ class PostManager:
             except GRPCError as error:
                 logger.error(f"Error getting user posts: {error.message}")
                 return []
+            except Exception as e:
+                logger.error(f"Error during get user posts: {str(e)}")
+                return []
 
     @staticmethod
     async def get_user_posts_by_username(user_id: str) -> list:
@@ -100,3 +112,6 @@ class PostManager:
             except GRPCError as error:
                 logger.error(f"Error getting user posts: {error.message}")
                 return []
+            except Exception as e:
+                logger.error(f"Error during get user posts by username: {str(e)}")
+                return False

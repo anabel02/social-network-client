@@ -30,6 +30,9 @@ class UserManager:
             except GRPCError as error:
                 logger.error(f"Error getting user info: {error.status}: {error.message}")
                 return None
+            except Exception as e:
+                logger.error(f"Error during get user info: {str(e)}")
+                return None
 
     @staticmethod
     async def edit_user_info(user: db_models_pb2.User) -> bool:
@@ -44,3 +47,6 @@ class UserManager:
             except GRPCError as error:
                 logger.error(f"Error editing user info: {error.status}: {error.message}")
                 return False
+            except Exception as e:
+                logger.error(f"Error during edit user info: {str(e)}")
+                return None

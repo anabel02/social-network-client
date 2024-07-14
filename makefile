@@ -1,8 +1,11 @@
 # Docker image name
 IMAGE_NAME = socialnetwork-client
 
-# Port on which the Streamlit application will run
-PORT ?= 8501
+# Default ID (can be overridden from command line)
+ID ?= 0
+
+# Calculate port based on ID
+PORT := $(shell echo $$((8501 + $(ID))))
 
 # Project directory on your local machine
 PROJECT_DIR = $(shell pwd)
@@ -10,7 +13,7 @@ PROJECT_DIR = $(shell pwd)
 # Working directory inside the container
 CONTAINER_DIR = /app
 
-# Python interpreter (use 'python' or 'python3' as appropriate for your system)
+# Python interpreter
 PYTHON = python3
 
 # Virtual environment directory

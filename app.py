@@ -8,6 +8,9 @@ from rpc.requests_queue import process_requests
 from rpc.user import UserManager
 from rpc.follow import FollowManager
 from rpc.posts import PostManager
+import time
+import threading
+from streamlit.runtime.scriptrunner import add_script_run_ctx
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,28 +32,24 @@ async def update_storage():
         logger.info("No storage to update. No user found.")
 
 
-async def periodic_task(interval, func, *args, **kwargs):
-    while True:
-        try:
-            logger.info("Trying to run function: {func.__name__}")
-            if asyncio.iscoroutinefunction(func):
-                await func(*args, **kwargs)
-            else:
-                func(*args, **kwargs)
-        except Exception as e:
-            logger.error(f'Function {func.__name__} failed with exception: {e}')
-        finally:
-            logger.info(f"Waiting {interval} seconds before next attempt")
-            await asyncio.sleep(interval)
+def periodic_task(interval, task_function):
+    def wrapper():
+        while True:
+            task_function()
+            time.sleep(interval)
+    return wrapper
 
 
-async def run_periodic_tasks():
+def run_periodic_tasks():
     tasks = [
         periodic_task(13, update_servers),
-        periodic_task(23, process_requests),
-        periodic_task(107, update_storage)
+        periodic_task(23, lambda: asyncio.run(process_requests())),
+        periodic_task(107, lambda: asyncio.run(update_storage()))
     ]
-    await asyncio.gather(*tasks)
+    for task in tasks:
+        t = threading.Thread(target=task, daemon=True)
+        add_script_run_ctx(t)
+        t.start()
 
 
 async def main():
@@ -60,11 +59,9 @@ async def main():
     app.add_app("Profile", profile.app)
     app.add_app("Following users", following.app)
 
-    # Run the periodic task and the main app concurrently
-    await asyncio.gather(
-        run_periodic_tasks(),
-        app.run()
-    )
+    run_periodic_tasks()
+
+    await app.run()
 
 
 if __name__ == "__main__":

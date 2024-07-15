@@ -3,9 +3,10 @@ import proto.follow_service_pb2 as follow_pb2
 import proto.follow_service_pb2_grpc as follow_pb2_grpc
 from rpc.client import FOLLOW, create_channel, get_user
 from store import Storage
+from rpc.requests_queue import add_request, Request
 import grpc.aio
 
-logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,13 +32,17 @@ class FollowManager:
                 following = await Storage.async_disk_get(f"{current_user_username}_following", default=[])
                 following.append(target_username)
                 await Storage.async_disk_store(f"{current_user_username}_following", following)
-                return True
+                return 0
             except grpc.aio.AioRpcError as e:
                 logger.error(f"Error following user: {e.code()}; {e.details()}")
-                return False
+                if e.code() == grpc.StatusCode.UNAVAILABLE:
+                    add_request(Request(FOLLOW, request))
+                    return 2
+                return 1
             except Exception as e:
                 logger.error(f"Error during follow: {str(e)}")
-                return False
+                add_request(Request('FOLLOW', 'follow_user', {'target_username': target_username}))
+                return 2
 
     @staticmethod
     async def unfollow_user(target_username: str) -> bool:
@@ -55,22 +60,23 @@ class FollowManager:
                 following = await Storage.async_disk_get(f"{current_user_username}_following", default=[])
                 following = [user for user in following if user != target_username]
                 await Storage.async_disk_store(f"{current_user_username}_following", following)
-                return True
+                return 0
             except grpc.aio.AioRpcError as e:
                 logger.error(f"Error unfollowing user: {e.code()}; {e.details()}")
-                return False
+                return 1
             except Exception as e:
                 logger.error(f"Error during unfollow: {str(e)}")
-                return False
+                return 1
 
     @staticmethod
-    async def get_following() -> list:
+    async def get_following(force=False) -> list:
         current_user_username = get_user()['sub']
 
-        # Check if the user's following list is cached
-        cached_following = await Storage.async_disk_get(f"{current_user_username}_following", default=None)
-        if cached_following is not None:
-            return cached_following
+        if not force:
+            # Check if the user's following list is cached
+            cached_following = await Storage.async_disk_get(f"{current_user_username}_following", default=None)
+            if cached_following is not None:
+                return cached_following
 
         request = follow_pb2.GetFollowingRequest(user_id=current_user_username)
 

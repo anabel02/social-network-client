@@ -56,16 +56,15 @@ class ProfileUIManager:
 
     @staticmethod
     async def update_user_profile(user_info):
-        try:
-            success = await UserManager.edit_user_info(user_info)
-            if success:
-                st.success("Profile updated successfully!")
-                st.session_state.edit_mode = False
-                st.session_state.user_info = user_info
-            else:
-                st.error("Error updating profile. Please try again.")
-        except Exception as e:
-            st.error(f"An error occurred: {str(e)}")
+        response = await UserManager.edit_user_info(user_info)
+        if response == 0:
+            st.success("Profile updated successfully!")
+            st.session_state.edit_mode = False
+            st.session_state.user_info = user_info
+        elif response == 1:
+            st.error("Failed to update profile. Please try again.")
+        elif response == 2:
+            st.error("Failed to update profile. Request stored locally. Check your connection.")
 
     @staticmethod
     def render_post_form():
@@ -124,30 +123,31 @@ async def app():
 
         if st.session_state['do_post']:
             content = st.session_state.pop('do_post')
-            post = await PostManager.create_post(content)
-            if post:
+            response = await PostManager.create_post(content)
+            if response == 0:
                 st.success("Post created successfully!")
-            else:
-                st.error("Failed to create post.")
+            elif response == 1:
+                st.error("Failed to create post. Please try again.")
+            elif response == 2:
+                st.error("Failed to create post. Request stored locally. Check your connection.")
             st.rerun()
 
         if st.session_state['do_repost']:
             original_post_id = st.session_state.pop('do_repost')
-            content = f"Repost of post {original_post_id}"
-            repost = await PostManager.repost(original_post_id, content)
-            if repost:
+            response = await PostManager.repost(original_post_id)
+            if response == 0:
                 st.success("Repost created successfully!")
             else:
-                st.error("Failed to create repost.")
+                st.error("Failed to repost. Please try again.")
             st.rerun()
 
         if st.session_state['do_delete']:
             post_id = st.session_state.pop('do_delete')
-            success = await PostManager.delete_post(post_id)
-            if success:
+            response = await PostManager.delete_post(post_id)
+            if response == 0:
                 st.success("Post deleted successfully!")
             else:
-                st.error("Failed to delete post.")
+                st.error("Failed to delete post. Please try again.")
             st.rerun()
 
         await ProfileUIManager.display_posts()

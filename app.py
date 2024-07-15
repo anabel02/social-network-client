@@ -4,10 +4,29 @@ from apps import login, profile, following
 from rpc.client import get_user
 import logging
 from rpc.broadcast import update_servers
+from rpc.requests_queue import process_requests
+from rpc.user import UserManager
+from rpc.follow import FollowManager
+from rpc.posts import PostManager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+async def update_storage():
+    logger.info("Updating storage")
+    user = get_user()
+    if user:
+        try:
+            await UserManager.get_user_info(user['sub'], force=True)
+            await FollowManager.get_following(force=True)
+            await PostManager.get_user_posts(force=True)
+            logger.info("Storage updated successfully")
+        except Exception as e:
+            logger.error(f"Error updating storage: {str(e)}")
+    else:
+        logger.info("No storage to update. No user found.")
 
 
 async def periodic_task(interval, func, *args, **kwargs):
@@ -27,7 +46,9 @@ async def periodic_task(interval, func, *args, **kwargs):
 
 async def run_periodic_tasks():
     tasks = [
-        periodic_task(10, update_servers)
+        periodic_task(13, update_servers),
+        periodic_task(23, process_requests),
+        periodic_task(107, update_storage)
     ]
     await asyncio.gather(*tasks)
 

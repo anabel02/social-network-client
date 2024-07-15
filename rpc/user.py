@@ -14,11 +14,13 @@ logger = logging.getLogger(__name__)
 
 class UserManager:
     @staticmethod
-    async def get_user_info(username: str) -> db_models_pb2.User:
-        # Check if the user's information is cached
-        cached_user = await Storage.async_disk_get(f"user_{username}", None)
-        if cached_user is not None:
-            return cached_user
+    async def get_user_info(username: str, force=False) -> db_models_pb2.User:
+
+        if not force:
+            # Check if the user's information is cached
+            cached_user = await Storage.async_disk_get(f"user_{username}", None)
+            if cached_user is not None:
+                return cached_user
 
         request = user_pb2.GetUserRequest(username=username)
         async with await create_channel(USER) as channel:

@@ -78,14 +78,14 @@ class PostManager:
                 return 1
 
     @staticmethod
-    async def get_user_posts() -> list:
-        user = get_user()
-        current_user_username = user['sub']
+    async def get_user_posts(force=False) -> list:
+        current_user_username = get_user()['sub']
 
-        # Check if the user's posts are cached
-        cached_posts = await Storage.async_disk_get(f"{current_user_username}_posts", None)
-        if cached_posts is not None:
-            return cached_posts
+        if not force:
+            # Check if the user's posts are cached
+            cached_posts = await Storage.async_disk_get(f"{current_user_username}_posts", None)
+            if cached_posts is not None:
+                return cached_posts
 
         request = post_pb2.GetUserPostsRequest(user_id=current_user_username)
 

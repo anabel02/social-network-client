@@ -69,13 +69,14 @@ class FollowManager:
                 return 1
 
     @staticmethod
-    async def get_following() -> list:
+    async def get_following(force=False) -> list:
         current_user_username = get_user()['sub']
 
-        # Check if the user's following list is cached
-        cached_following = await Storage.async_disk_get(f"{current_user_username}_following", default=None)
-        if cached_following is not None:
-            return cached_following
+        if not force:
+            # Check if the user's following list is cached
+            cached_following = await Storage.async_disk_get(f"{current_user_username}_following", default=None)
+            if cached_following is not None:
+                return cached_following
 
         request = follow_pb2.GetFollowingRequest(user_id=current_user_username)
 

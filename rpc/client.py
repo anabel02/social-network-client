@@ -15,8 +15,7 @@ FOLLOW = 50054
 TOKEN = 'token'
 PUBLIC_KEY_PATH = 'pub.pem'
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 

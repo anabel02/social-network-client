@@ -12,6 +12,9 @@ from proto.users_service_pb2_grpc import UserServiceStub
 from proto.posts_service_pb2_grpc import PostServiceStub
 
 
+logger = logging.getLogger(__name__)
+
+
 class Request:
     def __init__(self, service: int, request):
         self.id = str(uuid.uuid4())
@@ -45,11 +48,11 @@ def clear_requests():
 
 async def process_requests():
     requests = get_requests()
-    logging.info(f"Processing requests: {requests}")
+    logger.info(f"Processing requests: {requests}")
     processed = []
 
     for request in requests:
-        logging.info(f"Processing request: {request}")
+        logger.info(f"Processing request: {request}")
         response = None
         try:
             if request.service == FOLLOW:
@@ -58,7 +61,7 @@ async def process_requests():
                     if isinstance(request.request, FollowUserRequest):
                         response = await stub.FollowUser(request.request)
                     else:
-                        logging.info(f"Unknown FOLLOW request offline: {request.request}")
+                        logger.info(f"Unknown FOLLOW request offline: {request.request}")
 
             if request.service == POST:
                 async with await create_channel(POST) as channel:
@@ -66,7 +69,7 @@ async def process_requests():
                     if isinstance(request.request, CreatePostRequest):
                         response = await stub.CreatePost(request.request)
                     else:
-                        logging.info(f"Unknown POST request offline: {request.request}")
+                        logger.info(f"Unknown POST request offline: {request.request}")
 
             if request.service == USER:
                 async with await create_channel(USER) as channel:
@@ -74,25 +77,25 @@ async def process_requests():
                     if isinstance(request.request, EditUserRequest):
                         response = await stub.EditUser(request.request)
                     else:
-                        logging.info(f"Unknown USER request offline: {request.request}")
+                        logger.info(f"Unknown USER request offline: {request.request}")
 
             else:
-                logging.info(f"Unknown service: {request.service}")
+                logger.info(f"Unknown service: {request.service}")
 
         except grpc.aio.AioRpcError as e:
-            logging.error(f"gRPC error in {request.service}.{request.request}: {e.code()}; {e.details()}")
+            logger.error(f"gRPC error in {request.service}.{request.request}: {e.code()}; {e.details()}")
             continue
         except Exception as err:
-            logging.exception(f"Request processing failed with exception: {err}")
+            logger.exception(f"Request processing failed with exception: {err}")
             continue
 
         if response is not None:
             processed.append(request)
-            logging.info(f"Request processed successfully: {request}")
+            logger.info(f"Request processed successfully: {request}")
         else:
-            logging.warning(f"Request processing did not yield a response: {request}")
+            logger.warning(f"Request processing did not yield a response: {request}")
 
     for req in processed:
         remove_request(req)
 
-    logging.info(f"Processed {len(processed)} requests")
+    logger.info(f"Processed {len(processed)} requests")

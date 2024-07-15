@@ -6,7 +6,7 @@ from store import Storage
 from rpc.requests_queue import add_request, Request
 import grpc.aio
 
-logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 

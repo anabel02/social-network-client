@@ -8,8 +8,6 @@ from store import Storage
 import grpc.aio
 
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

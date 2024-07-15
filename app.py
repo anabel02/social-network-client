@@ -46,9 +46,9 @@ async def periodic_task(interval, func, *args, **kwargs):
 
 async def run_periodic_tasks():
     tasks = [
-        periodic_task(10, update_servers),
-        periodic_task(17, process_requests),
-        # periodic_task(120, update_storage)
+        periodic_task(13, update_servers),
+        periodic_task(23, process_requests),
+        periodic_task(107, update_storage)
     ]
     await asyncio.gather(*tasks)
 

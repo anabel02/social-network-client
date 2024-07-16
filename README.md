@@ -16,7 +16,7 @@ Este proyecto busca crear una plataforma de comunicación descentralizada, inspi
 1. Clona el repositorio
 2. Navega al directorio del proyecto:
    ```bash
-   cd social-network-distributed-system
+   cd social-network-distributed-client
    ```
 Claro, aquí tienes las instrucciones separadas para ejecutar el proyecto con y sin Docker:
 
